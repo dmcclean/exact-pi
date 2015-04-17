@@ -3,6 +3,10 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Data.ExactPi.TypeLevel
+(
+  ExactPi'(..),
+  KnownExactPi(..)
+)
 where
 
 import Data.ExactPi
