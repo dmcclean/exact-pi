@@ -19,7 +19,8 @@ module Data.ExactPi
 (
   ExactPi(..),
   approximateValue,
-  isExactZero
+  isExactZero,
+  isExactOne
 )
 where
 
@@ -41,6 +42,11 @@ approximateValue (Approximate x) = x
 isExactZero :: ExactPi -> Bool
 isExactZero (Exact _ 0) = True
 isExactZero _ = False
+
+-- | Identifies whether an 'ExactPi' is an exact representation of one.
+isExactOne :: ExactPi -> Bool
+isExactOne (Exact 0 1) = True
+isExactOne _ = False
 
 instance Show ExactPi where
   show (Exact z q) | z == 0 = "Exactly " ++ show q
