@@ -2,7 +2,7 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                exact-pi
-version:             0.1.1.0
+version:             0.1.2.0
 synopsis:            Exact rational multiples of pi (and integer powers of pi)
 description:         Provides an exact representation for rational multiples of pi alongside an approximate representation of all reals.
                      Useful for storing and computing with conversion factors between physical units.
