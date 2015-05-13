@@ -72,6 +72,7 @@ instance Num ExactPi where
 instance Fractional ExactPi where
   fromRational = Exact 0
   recip (Exact z q) = Exact z (recip q)
+  recip (Approximate x) = Approximate (recip x)
 
 instance Floating ExactPi where
   pi = Exact 1 1
@@ -100,4 +101,3 @@ approx1 f x = Approximate (f (approximateValue x))
 instance Monoid ExactPi where
   mempty = 1
   mappend = (*)
-  
