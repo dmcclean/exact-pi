@@ -25,7 +25,6 @@ module Data.ExactPi
 where
 
 import Data.Monoid
-import Data.Group
 import Prelude
 
 -- | Represents an exact or approximate real value.
@@ -97,13 +96,8 @@ instance Floating ExactPi where
 approx1 :: (forall a.Floating a => a -> a) -> ExactPi -> ExactPi
 approx1 f x = Approximate (f (approximateValue x))
 
--- | The multiplicative monoid over augmented rationals.
+-- | The multiplicative monoid over 'Rational's augmented with multiples of 'pi'.
 instance Monoid ExactPi where
   mempty = 1
   mappend = (*)
-
--- | The multiplicative group over augmented rationals.
-instance Group ExactPi where
-  invert = recip
-
-instance Abelian ExactPi
+  
