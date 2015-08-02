@@ -47,8 +47,9 @@ approximateValue (Approximate x) = x
 
 -- | Identifies whether an 'ExactPi' is an exact or approximate representation of zero.
 isZero :: ExactPi -> Bool
-isZero (Exact _ 0) = True
+isZero (Exact _ 0)     = True
 isZero (Approximate x) = x == (0 :: Double)
+isZero _               = False
 
 -- | Identifies whether an 'ExactPi' is an exact representation of zero.
 isExactZero :: ExactPi -> Bool
