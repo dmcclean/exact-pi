@@ -19,12 +19,18 @@ module Data.ExactPi
 (
   ExactPi(..),
   approximateValue,
+  isZero,
   isExactZero,
-  isExactOne
+  isExactOne,
+  isExactInteger,
+  toExactInteger,
+  isExactRational,
+  toExactRational
 )
 where
 
 import Data.Monoid
+import Data.Ratio (numerator, denominator)
 import Prelude
 
 -- | Represents an exact or approximate real value.
@@ -39,6 +45,11 @@ approximateValue :: Floating a => ExactPi -> a
 approximateValue (Exact z q) = (pi ^ z) * (fromRational q)
 approximateValue (Approximate x) = x
 
+-- | Identifies whether an 'ExactPi' is an exact or approximate representation of zero.
+isZero :: ExactPi -> Bool
+isZero (Exact _ 0) = True
+isZero (Approximate x) = x == (0 :: Double)
+
 -- | Identifies whether an 'ExactPi' is an exact representation of zero.
 isExactZero :: ExactPi -> Bool
 isExactZero (Exact _ 0) = True
@@ -48,6 +59,26 @@ isExactZero _ = False
 isExactOne :: ExactPi -> Bool
 isExactOne (Exact 0 1) = True
 isExactOne _ = False
+
+-- | Identifies whether an 'ExactPi' is an exact representation of an integer.
+isExactInteger :: ExactPi -> Bool
+isExactInteger (Exact 0 q) | denominator q == 1 = True
+isExactInteger _                                = False
+
+-- | Converts an 'ExactPi' to an exact 'Integer' or 'Nothing'.
+toExactInteger :: ExactPi -> Maybe Integer
+toExactInteger (Exact 0 q) | denominator q == 1 = Just $ numerator q
+toExactInteger _                                = Nothing
+
+-- | Identifies whether an 'ExactPi' is an exact representation of a rational.
+isExactRational :: ExactPi -> Bool
+isExactRational (Exact 0 _) = True
+isExactRational _           = False
+
+-- | Converts an 'ExactPi' to an exact 'Rational' or 'Nothing'.
+toExactRational :: ExactPi -> Maybe Rational
+toExactRational (Exact 0 q) = Just q
+toExactRational _           = Nothing
 
 instance Show ExactPi where
   show (Exact z q) | z == 0 = "Exactly " ++ show q

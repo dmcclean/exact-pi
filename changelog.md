@@ -1,3 +1,7 @@
+0.2.1.0
+-------
+* Added support for converting to exact integers or exact rationals.
+
 0.2.0.0
 -------
 * Removed dependency on groups package, since it appears not to be widely used.
