@@ -1,3 +1,7 @@
+0.3.0.0
+-------
+* Added a type-level representation of ExactPi values.
+
 0.2.1.1
 -------
 * Fixed a missing case in isZero.
