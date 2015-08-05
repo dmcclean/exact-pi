@@ -3,7 +3,7 @@
 {-# OPTIONS_HADDOCK show-extensions #-}
 
 {-|
-Module      : Kaos.Math.AugmentedRational
+Module      : Data.ExactPi
 Description : Exact rational multiples of powers of pi
 License     : MIT
 Maintainer  : douglas.mcclean@gmail.com
