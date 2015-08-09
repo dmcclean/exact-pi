@@ -18,7 +18,7 @@ module Data.ExactPi.TypeLevel
 (
   type ExactPi'(..),
   KnownExactPi(..),
-  type (*), type (/), type Recip,
+  type (*), type (/), type Recip, type Approximate,
   type ExactNatural,
   type One, type Pi
 )
@@ -44,7 +44,8 @@ import qualified Numeric.NumType.DK.Integers as Z
 -- Of course there are also many representations of every value, because the numerator need not be
 -- comprime to the denominator. For many purposes it is not necessary to maintain the types in reduced
 -- form, they will be appropriately reduced when converted to terms.
-data ExactPi' = ExactPi' TypeInt -- ^ Exponent of pi
+data ExactPi' = ExactPi' Bool -- ^ Is value exact?
+                         TypeInt -- ^ Exponent of pi
                          Nat -- ^ Numerator
                          Nat -- ^ Denominator
 
@@ -56,30 +57,50 @@ class KnownExactPi (v :: ExactPi') where
   -- | Converts an 'ExactPi'' type to an 'ExactPi' value.
   exactPiVal :: Proxy v -> ExactPi
 
-instance (KnownTypeInt z, KnownNat p, KnownNat q, 1 <= q) => KnownExactPi ('ExactPi' z p q) where
-  exactPiVal _ = Exact z' (p' % q')
+instance (KnownBool e, KnownTypeInt z, KnownNat p, KnownNat q, 1 <= q) => KnownExactPi ('ExactPi' e z p q) where
+  exactPiVal _ = if isExact then v else Approximate $ approximateValue v
     where
+      isExact = boolVal (Proxy :: Proxy e)
+      v = Exact z' (p' % q')
       z' = toNum  (Proxy :: Proxy z)
       p' = natVal (Proxy :: Proxy p)
       q' = natVal (Proxy :: Proxy q)
 
 -- | Forms the product of 'ExactPi'' types (in the arithmetic sense).
 type family (a :: ExactPi') * (b :: ExactPi') :: ExactPi' where
-  ('ExactPi' z p q) * ('ExactPi' z' p' q') = 'ExactPi' (z Z.+ z') (p N.* p') (q N.* q')
+  ('ExactPi' e z p q) * ('ExactPi' e' z' p' q') = 'ExactPi' (And e e') (z Z.+ z') (p N.* p') (q N.* q')
 
 -- | Forms the quotient of 'ExactPi'' types (in the arithmetic sense).
 type family (a :: ExactPi') / (b :: ExactPi') :: ExactPi' where
-  ('ExactPi' z p q) / ('ExactPi' z' p' q') = 'ExactPi' (z Z.- z') (p N.* q') (q N.* p')
+  ('ExactPi' e z p q) / ('ExactPi' e' z' p' q') = 'ExactPi' (And e e') (z Z.- z') (p N.* q') (q N.* p')
 
 -- | Forms the reciprocal of an 'ExactPi'' type.
 type family Recip (a :: ExactPi') :: ExactPi' where
-  Recip ('ExactPi' z p q) = 'ExactPi' (Negate z) q p
+  Recip ('ExactPi' e z p q) = 'ExactPi' e (Negate z) q p
+
+-- | Forms an approximate value from one which may be exact.
+type family Approximate (e :: ExactPi') :: ExactPi' where
+  Approximate ('ExactPi' e z p q) = 'ExactPi' 'False z p q
 
 -- | Converts a type-level natural to an 'ExactPi'' type.
-type ExactNatural n = 'ExactPi' 'Zero n 1
+type ExactNatural n = 'ExactPi' 'True 'Zero n 1
 
 -- | The 'ExactPi'' type representing the number 1.
 type One = ExactNatural 1
 
 -- | The 'ExactPi'' type representing the number pi.
-type Pi = 'ExactPi' 'Pos1 1 1
+type Pi = 'ExactPi' 'True 'Pos1 1 1
+
+-- basic machinery for type-level booleans that should be imported from somewhere else
+class KnownBool (b :: Bool) where
+  boolVal :: Proxy b -> Bool
+
+instance KnownBool 'True where
+  boolVal _ = True
+
+instance KnownBool 'False where
+  boolVal _ = False
+
+type family And (a :: Bool) (b :: Bool) :: Bool where
+  And 'True 'True = 'True
+  And a b = 'False
