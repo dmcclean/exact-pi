@@ -1,3 +1,8 @@
+0.2.1.2
+-------
+* Fixed a bug in recip.
+* Fixed approximation of exact values with a negative exponent for pi.
+
 0.2.1.1
 -------
 * Fixed a missing case in isZero.
