@@ -1,3 +1,5 @@
+{-# OPTIONS_HADDOCK show-extensions #-}
+
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
@@ -50,10 +52,10 @@ import qualified Numeric.NumType.DK.Integers as Z
 -- Of course there are also many representations of every value, because the numerator need not be
 -- comprime to the denominator. For many purposes it is not necessary to maintain the types in reduced
 -- form, they will be appropriately reduced when converted to terms.
-data ExactPi' = ExactPi' Bool -- ^ Is value exact?
-                         TypeInt -- ^ Exponent of pi
-                         Nat -- ^ Numerator
-                         Nat -- ^ Denominator
+data ExactPi' = ExactPi' Bool -- Is value exact?
+                         TypeInt -- Exponent of pi
+                         Nat -- Numerator
+                         Nat -- Denominator
 
 -- | A KnownDimension is one for which we can construct a term-level representation.
 --
@@ -68,7 +70,7 @@ class KnownExactPi (v :: ExactPi') where
 type family MinCtxt (v :: ExactPi') :: * -> Constraint where
   MinCtxt ('ExactPi' 'True 'Zero p 1) = Num
   MinCtxt ('ExactPi' 'True 'Zero p q) = Fractional
-  MinCtxt ('ExactPi' e z p q) = Floating
+  MinCtxt ('ExactPi' e z p q)         = Floating
 
 class KnownMinCtxt (c :: * -> Constraint) where
   inj :: c a => Proxy c -> ExactPi -> a
@@ -120,7 +122,7 @@ type ExactNatural n = 'ExactPi' 'True 'Zero n 1
 -- | The 'ExactPi'' type representing the number 1.
 type One = ExactNatural 1
 
--- | The 'ExactPi'' type representing the number pi.
+-- | The 'ExactPi'' type representing the number 'pi'.
 type Pi = 'ExactPi' 'True 'Pos1 1 1
 
 -- basic machinery for type-level booleans that should be imported from somewhere else
