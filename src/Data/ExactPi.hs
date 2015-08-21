@@ -42,7 +42,7 @@ data ExactPi = Exact Integer Rational -- ^ @'Exact' z q@ = q * pi^z. Note that t
 -- This uses the value of `pi` supplied by the destination type, to provide the appropriate
 -- precision.
 approximateValue :: Floating a => ExactPi -> a
-approximateValue (Exact z q) = (pi ^ z) * (fromRational q)
+approximateValue (Exact z q) = (pi ^^ z) * (fromRational q)
 approximateValue (Approximate x) = x
 
 -- | Identifies whether an 'ExactPi' is an exact or approximate representation of zero.
@@ -103,7 +103,7 @@ instance Num ExactPi where
 
 instance Fractional ExactPi where
   fromRational = Exact 0
-  recip (Exact z q) = Exact z (recip q)
+  recip (Exact z q) = Exact (negate z) (recip q)
   recip (Approximate x) = Approximate (recip x)
 
 instance Floating ExactPi where
