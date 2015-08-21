@@ -1,4 +1,6 @@
+{-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -20,13 +22,17 @@ module Data.ExactPi.TypeLevel
   KnownExactPi(..),
   type (*), type (/), type Recip, type Approximate,
   type ExactNatural,
-  type One, type Pi
+  type One, type Pi,
+  type MinCtxt,
+  injMin
 )
 where
 
 import Data.ExactPi
+import Data.Maybe (fromJust)
 import Data.Proxy
 import Data.Ratio
+import GHC.Exts (Constraint)
 import GHC.TypeLits hiding (type (*), type (^))
 import qualified GHC.TypeLits as N
 import Numeric.NumType.DK.Integers hiding (type (*), type (/))
@@ -56,6 +62,32 @@ data ExactPi' = ExactPi' Bool -- ^ Is value exact?
 class KnownExactPi (v :: ExactPi') where
   -- | Converts an 'ExactPi'' type to an 'ExactPi' value.
   exactPiVal :: Proxy v -> ExactPi
+
+-- | Determines the minimum context required for a numeric type to hold the value
+-- associated with a specific 'ExactPi'' type.
+type family MinCtxt (v :: ExactPi') :: * -> Constraint where
+  MinCtxt ('ExactPi' 'True 'Zero p 1) = Num
+  MinCtxt ('ExactPi' 'True 'Zero p q) = Fractional
+  MinCtxt ('ExactPi' e z p q) = Floating
+
+class KnownMinCtxt (c :: * -> Constraint) where
+  inj :: c a => Proxy c -> ExactPi -> a
+
+instance KnownMinCtxt Num where
+  inj _ = fromInteger . fromJust . toExactInteger
+
+instance KnownMinCtxt Fractional where
+  inj _ = fromRational . fromJust . toExactRational
+
+instance KnownMinCtxt Floating where
+  inj _ = approximateValue
+
+-- | Converts an 'ExactPi'' type to a numeric value with the minimum required context.
+-- 
+-- When the value is known to be an integer, it can be returned as any instance of 'Num'. Similarly,
+-- rationals require 'Fractional', and values that involve 'pi' require 'Floating'.
+injMin :: forall v a.(KnownExactPi v, MinCtxt v a, KnownMinCtxt (MinCtxt v)) => Proxy v -> a
+injMin = inj (Proxy :: Proxy (MinCtxt v)) . exactPiVal
 
 instance (KnownBool e, KnownTypeInt z, KnownNat p, KnownNat q, 1 <= q) => KnownExactPi ('ExactPi' e z p q) where
   exactPiVal _ = if isExact then v else Approximate $ approximateValue v
