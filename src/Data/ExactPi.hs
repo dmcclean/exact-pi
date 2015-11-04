@@ -20,6 +20,7 @@ module Data.ExactPi
   ExactPi(..),
   approximateValue,
   isZero,
+  isExact,
   isExactZero,
   isExactOne,
   isExactInteger,
@@ -50,6 +51,11 @@ isZero :: ExactPi -> Bool
 isZero (Exact _ 0)     = True
 isZero (Approximate x) = x == (0 :: Double)
 isZero _               = False
+
+-- | Identifies whether an 'ExactPi' is an exact value.
+isExact :: ExactPi -> Bool
+isExact (Exact _ _) = True
+isExact _           = False
 
 -- | Identifies whether an 'ExactPi' is an exact representation of zero.
 isExactZero :: ExactPi -> Bool
