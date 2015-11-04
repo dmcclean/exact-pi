@@ -23,6 +23,7 @@ module Data.ExactPi
   isExact,
   isExactZero,
   isExactOne,
+  areExactlyEqual,
   isExactInteger,
   toExactInteger,
   isExactRational,
@@ -66,6 +67,11 @@ isExactZero _ = False
 isExactOne :: ExactPi -> Bool
 isExactOne (Exact 0 1) = True
 isExactOne _ = False
+
+-- | Identifies whether two 'ExactPi' values are exactly equal.
+areExactlyEqual :: ExactPi -> ExactPi -> Bool
+areExactlyEqual (Exact z1 q1) (Exact z2 q2) = (z1 == z2 && q1 == q2) || (q1 == 0 && q2 == 0)
+areExactlyEqual _ _ = False
 
 -- | Identifies whether an 'ExactPi' is an exact representation of an integer.
 isExactInteger :: ExactPi -> Bool

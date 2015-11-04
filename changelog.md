@@ -1,3 +1,7 @@
+0.3.1.0
+-------
+* Added support for exactly comparing values.
+
 0.3.0.0
 -------
 * Added a type-level representation of ExactPi values.
