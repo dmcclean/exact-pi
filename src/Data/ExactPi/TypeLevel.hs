@@ -20,11 +20,14 @@ As a result it is useful for representing conversion factors between physical un
 -}
 module Data.ExactPi.TypeLevel
 (
+  -- * Type Level ExactPi Values
   type ExactPi'(..),
   KnownExactPi(..),
+  -- * Arithmetic
   type (*), type (/), type Recip,
   type ExactNatural,
   type One, type Pi,
+  -- * Conversion to Term Level
   type MinCtxt,
   injMin
 )
@@ -71,8 +74,16 @@ type family MinCtxt (v :: ExactPi') :: * -> Constraint where
   MinCtxt ('ExactPi' 'Zero p q) = Fractional
   MinCtxt ('ExactPi' z p q)     = Floating
 
+-- | A KnownMinCtxt is a contraint on values sufficient to allow us to inject certain
+-- 'ExactPi' values into types that satisfy the constraint.
 class KnownMinCtxt (c :: * -> Constraint) where
-  inj :: c a => Proxy c -> ExactPi -> a
+  -- | Injects an 'ExactPi' value into a specified type satisfying this constraint.
+  -- 
+  -- The injection is permitted to fail if type constraint does not entail the 'MinCtxt'
+  -- required by the 'ExactPi'' representation of the supplied 'ExactPi' value.
+  inj :: c a => Proxy c -- ^ A proxy for identifying the required constraint.
+             -> ExactPi -- ^ The value to inject.
+             -> a       -- ^ A value of the constrained type corresponding to the supplied 'ExactPi' value.
 
 instance KnownMinCtxt Num where
   inj _ = fromInteger . fromJust . toExactInteger
