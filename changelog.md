@@ -1,3 +1,7 @@
+0.4.0.0
+-------
+* Added simpler constraints for converting ExactPi types to terms with the minimal context.
+
 0.3.1.0
 -------
 * Added support for exactly comparing values.

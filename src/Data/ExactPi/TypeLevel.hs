@@ -28,7 +28,7 @@ module Data.ExactPi.TypeLevel
   type ExactNatural,
   type One, type Pi,
   -- * Conversion to Term Level
-  type MinCtxt,
+  type MinCtxt, type MinCtxt',
   injMin
 )
 where
@@ -69,10 +69,12 @@ class KnownExactPi (v :: ExactPi') where
 
 -- | Determines the minimum context required for a numeric type to hold the value
 -- associated with a specific 'ExactPi'' type.
-type family MinCtxt (v :: ExactPi') :: * -> Constraint where
-  MinCtxt ('ExactPi' 'Zero p 1) = Num
-  MinCtxt ('ExactPi' 'Zero p q) = Fractional
-  MinCtxt ('ExactPi' z p q)     = Floating
+type family MinCtxt' (v :: ExactPi') :: * -> Constraint where
+  MinCtxt' ('ExactPi' 'Zero p 1) = Num
+  MinCtxt' ('ExactPi' 'Zero p q) = Fractional
+  MinCtxt' ('ExactPi' z p q)     = Floating
+
+type MinCtxt v a = (KnownExactPi v, MinCtxt' v a, KnownMinCtxt (MinCtxt' v))
 
 -- | A KnownMinCtxt is a contraint on values sufficient to allow us to inject certain
 -- 'ExactPi' values into types that satisfy the constraint.
@@ -98,8 +100,8 @@ instance KnownMinCtxt Floating where
 -- 
 -- When the value is known to be an integer, it can be returned as any instance of 'Num'. Similarly,
 -- rationals require 'Fractional', and values that involve 'pi' require 'Floating'.
-injMin :: forall v a.(KnownExactPi v, MinCtxt v a, KnownMinCtxt (MinCtxt v)) => Proxy v -> a
-injMin = inj (Proxy :: Proxy (MinCtxt v)) . exactPiVal
+injMin :: forall v a.(MinCtxt v a) => Proxy v -> a
+injMin = inj (Proxy :: Proxy (MinCtxt' v)) . exactPiVal
 
 instance (KnownTypeInt z, KnownNat p, KnownNat q, 1 <= q) => KnownExactPi ('ExactPi' z p q) where
   exactPiVal _ = Exact z' (p' % q')
