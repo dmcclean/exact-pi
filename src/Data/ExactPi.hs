@@ -102,7 +102,7 @@ toExactRational _           = Nothing
 rationalApproximations :: ExactPi -> [Rational]
 rationalApproximations (Approximate x) = [toRational (x :: Double)]
 rationalApproximations (Exact 0 q) = [q]
-rationalApproximations (Exact z q) = fmap (\p -> q * (p ^^ z)) piConvergents
+rationalApproximations (Exact z q) = fmap (\pi' -> q * (pi' ^^ z)) piConvergents
   where
     piConvergents :: [Rational]
     piConvergents = go True 2 4 where
