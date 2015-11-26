@@ -27,12 +27,13 @@ module Data.ExactPi
   isExactInteger,
   toExactInteger,
   isExactRational,
-  toExactRational
+  toExactRational,
+  rationalApproximations
 )
 where
 
 import Data.Monoid
-import Data.Ratio (numerator, denominator)
+import Data.Ratio ((%), numerator, denominator)
 import Prelude
 
 -- | Represents an exact or approximate real value.
@@ -92,6 +93,29 @@ isExactRational _           = False
 toExactRational :: ExactPi -> Maybe Rational
 toExactRational (Exact 0 q) = Just q
 toExactRational _           = Nothing
+
+-- | Converts an 'ExactPi' to a list of increasingly accurate rational approximations, on alternating
+-- sides of the actual value. Note that 'Approximate' values are converted using the 'Real' instance
+-- for 'Double' into a singleton list. Note that exact rationals are also converted into a singleton list.
+--
+-- Implementation based on work by Anders Kaseorg shared at http://qr.ae/RbXl8M.
+rationalApproximations :: ExactPi -> [Rational]
+rationalApproximations (Approximate x) = [toRational (x :: Double)]
+rationalApproximations (Exact 0 q) = [q]
+rationalApproximations (Exact z q) = fmap (\p -> q * (p ^^ z)) piConvergents
+  where
+    piConvergents :: [Rational]
+    piConvergents = go True 2 4 where
+      go s p' q' | ltPi m = [q' | not s] ++ go True m q'
+                 | otherwise = [p' | s] ++ go False p' m where
+        m = (numerator p' + numerator q')%(denominator p' + denominator q')
+    ltPi :: Rational -> Bool
+    ltPi x = ok x 1 where
+      ok y i =
+        y <= (27*i - 12)%5 ||
+        (y < (675*i - 216)%125 &&
+         ok ((y - fromInteger (5*i - 2))*(3*(3*i + 1)*(3*i + 2)%(i*(2*i - 1))))
+            (i + 1))
 
 instance Show ExactPi where
   show (Exact z q) | z == 0 = "Exactly " ++ show q
