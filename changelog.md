@@ -1,3 +1,7 @@
+0.4.1.0
+-------
+* Added function for computing rational approximations of ExactPi values.
+
 0.4.0.0
 -------
 * Added simpler constraints for converting ExactPi types to terms with the minimal context.
