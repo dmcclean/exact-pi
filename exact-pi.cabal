@@ -6,7 +6,8 @@ version:             0.4.1.0
 synopsis:            Exact rational multiples of pi (and integer powers of pi)
 description:         Provides an exact representation for rational multiples of pi alongside an approximate representation of all reals.
                      Useful for storing and computing with conversion factors between physical units.
-homepage:            https://github.com/dmcclean/exact-pi
+homepage:            https://github.com/dmcclean/exact-pi/
+bug-reports:         https://github.com/dmcclean/exact-pi/issues/
 license:             MIT
 license-file:        LICENSE
 author:              Douglas McClean
