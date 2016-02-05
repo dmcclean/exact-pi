@@ -135,7 +135,7 @@ instance Num ExactPi where
   abs (Approximate x) = Approximate $ abs x
   signum (Exact _ q) = Exact 0 (signum q)
   signum (Approximate x) = Approximate $ signum x -- we leave this tagged as approximate because we don't know "how" approximate the input was. a case could be made for exact answers here.
-  negate x = (-1) * x
+  negate x = (Exact 0 (-1)) * x
 
 instance Fractional ExactPi where
   fromRational = Exact 0

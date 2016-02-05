@@ -1,3 +1,7 @@
+0.4.1.1
+-------
+* Fixed infinite loop in definition of negate.
+
 0.4.1.0
 -------
 * Added function for computing rational approximations of ExactPi values.
