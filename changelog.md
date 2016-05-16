@@ -1,3 +1,7 @@
+0.4.1.2
+-------
+* Bump base dependency.
+
 0.4.1.1
 -------
 * Fixed infinite loop in definition of negate.
