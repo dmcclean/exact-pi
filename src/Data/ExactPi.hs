@@ -34,6 +34,7 @@ where
 
 import Data.Monoid
 import Data.Ratio ((%), numerator, denominator)
+import Data.Semigroup
 import Prelude
 
 -- | Represents an exact or approximate real value.
@@ -164,6 +165,10 @@ instance Floating ExactPi where
 
 approx1 :: (forall a.Floating a => a -> a) -> ExactPi -> ExactPi
 approx1 f x = Approximate (f (approximateValue x))
+
+-- | The multiplicative semigroup over 'Rational's augmented with multiples of 'pi'.
+instance Semigroup ExactPi where
+  (<>) = mappend
 
 -- | The multiplicative monoid over 'Rational's augmented with multiples of 'pi'.
 instance Monoid ExactPi where

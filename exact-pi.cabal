@@ -18,14 +18,21 @@ build-type:          Simple
 extra-source-files:  README.md,
                      changelog.md
 cabal-version:       >=1.10
-
+tested-with:         GHC == 7.8.4,
+                     GHC == 7.10.1,
+                     GHC == 8.0.1,
+                     GHC == 8.0.2,
+                     GHC == 8.2.1,
+                     GHC == 8.2.2,
+                     GHC == 8.4.1
 library
   exposed-modules:     Data.ExactPi,
                        Data.ExactPi.TypeLevel
   -- other-modules:       
   -- other-extensions:    
   build-depends:       base >=4.7 && <5,
-                       numtype-dk >= 0.5
+                       numtype-dk >= 0.5,
+                       semigroups >= 0.9 && < 1.0
   ghc-options:         -Wall
   hs-source-dirs:      src
   default-language:    Haskell2010
