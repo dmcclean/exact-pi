@@ -1,3 +1,7 @@
+0.4.1.3
+-------
+* Add Semigroup ExactPi instance.
+
 0.4.1.2
 -------
 * Bump base dependency.
