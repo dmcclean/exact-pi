@@ -1,12 +1,17 @@
 {-# OPTIONS_HADDOCK show-extensions #-}
 
 {-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
+
+#if __GLASGOW_HASKELL__ > 805
+{-# LANGUAGE NoStarIsType #-}
+#endif
 
 {-|
 Module      : Data.ExactPi.TypeLevel
@@ -16,7 +21,7 @@ Maintainer  : douglas.mcclean@gmail.com
 Stability   : experimental
 
 This kind is sufficient to exactly express the closure of Q⁺ ∪ {π} under multiplication and division.
-As a result it is useful for representing conversion factors between physical units. 
+As a result it is useful for representing conversion factors between physical units.
 -}
 module Data.ExactPi.TypeLevel
 (
@@ -37,7 +42,6 @@ import Data.ExactPi
 import Data.Maybe (fromJust)
 import Data.Proxy
 import Data.Ratio
-import GHC.Exts (Constraint)
 import GHC.TypeLits hiding (type (*), type (^))
 import qualified GHC.TypeLits as N
 import Numeric.NumType.DK.Integers hiding (type (*), type (/))
@@ -69,7 +73,7 @@ class KnownExactPi (v :: ExactPi') where
 
 -- | Determines the minimum context required for a numeric type to hold the value
 -- associated with a specific 'ExactPi'' type.
-type family MinCtxt' (v :: ExactPi') :: * -> Constraint where
+type family MinCtxt' (v :: ExactPi') where
   MinCtxt' ('ExactPi' 'Zero p 1) = Num
   MinCtxt' ('ExactPi' 'Zero p q) = Fractional
   MinCtxt' ('ExactPi' z p q)     = Floating
@@ -78,9 +82,9 @@ type MinCtxt v a = (KnownExactPi v, MinCtxt' v a, KnownMinCtxt (MinCtxt' v))
 
 -- | A KnownMinCtxt is a contraint on values sufficient to allow us to inject certain
 -- 'ExactPi' values into types that satisfy the constraint.
-class KnownMinCtxt (c :: * -> Constraint) where
+class KnownMinCtxt c where
   -- | Injects an 'ExactPi' value into a specified type satisfying this constraint.
-  -- 
+  --
   -- The injection is permitted to fail if type constraint does not entail the 'MinCtxt'
   -- required by the 'ExactPi'' representation of the supplied 'ExactPi' value.
   inj :: c a => Proxy c -- ^ A proxy for identifying the required constraint.
@@ -97,7 +101,7 @@ instance KnownMinCtxt Floating where
   inj _ = approximateValue
 
 -- | Converts an 'ExactPi'' type to a numeric value with the minimum required context.
--- 
+--
 -- When the value is known to be an integer, it can be returned as any instance of 'Num'. Similarly,
 -- rationals require 'Fractional', and values that involve 'pi' require 'Floating'.
 injMin :: forall v a.(MinCtxt v a) => Proxy v -> a
