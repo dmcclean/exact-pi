@@ -1,3 +1,7 @@
+0.4.1.4
+-------
+* Comply with NoStarIsType pragma.
+
 0.4.1.3
 -------
 * Add Semigroup ExactPi instance.
