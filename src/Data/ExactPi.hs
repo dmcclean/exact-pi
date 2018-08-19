@@ -1,4 +1,8 @@
-{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE RankNTypes          #-}
+{-# LANGUAGE ParallelListComp    #-}
+{-# LANGUAGE KindSignatures      #-}
+{-# LANGUAGE DataKinds           #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 {-# OPTIONS_HADDOCK show-extensions #-}
 
@@ -16,26 +20,33 @@ of the arithmetic operations in the `Num` typeclass and to encode conversion
 factors defined experimentally.
 -}
 module Data.ExactPi
-(
-  ExactPi(..),
-  approximateValue,
-  isZero,
-  isExact,
-  isExactZero,
-  isExactOne,
-  areExactlyEqual,
-  isExactInteger,
-  toExactInteger,
-  isExactRational,
-  toExactRational,
-  rationalApproximations
-)
+-- (
+--   ExactPi(..),
+--   approximateValue,
+--   isZero,
+--   isExact,
+--   isExactZero,
+--   isExactOne,
+--   areExactlyEqual,
+--   isExactInteger,
+--   toExactInteger,
+--   isExactRational,
+--   toExactRational,
+--   rationalApproximations,
+--   rationalApproximations2
+-- )
 where
 
 import Data.Monoid
 import Data.Ratio ((%), numerator, denominator)
 import Data.Semigroup
 import Prelude
+import Data.Fixed
+import GHC.TypeNats
+
+data E (n :: Nat)
+instance KnownNat n => HasResolution (E n) where
+  resolution _ = 10^(natVal (undefined :: E n))
 
 -- | Represents an exact or approximate real value.
 -- The exactly representable values are rational multiples of an integer power of pi.
@@ -95,28 +106,48 @@ toExactRational :: ExactPi -> Maybe Rational
 toExactRational (Exact 0 q) = Just q
 toExactRational _           = Nothing
 
--- | Converts an 'ExactPi' to a list of increasingly accurate rational approximations, on alternating
--- sides of the actual value. Note that 'Approximate' values are converted using the 'Real' instance
--- for 'Double' into a singleton list. Note that exact rationals are also converted into a singleton list.
+-- | Converts an 'ExactPi' to a list of increasingly accurate rational approximations. Note
+-- that 'Approximate' values are converted using the 'Real' instance for 'Double' into a
+-- singleton list. Note that exact rationals are also converted into a singleton list.
 --
--- Implementation based on work by Anders Kaseorg shared at http://qr.ae/RbXl8M.
+-- Implementation based on Chudnovsky's algorithm, with the continued fraction algorithm 
+-- used to approximate root 10005. Note Chudnovsky's series provides no more than 15 digits
+-- per iteration, so the root approximation should not have a more rapid rate of convergence.
 rationalApproximations :: ExactPi -> [Rational]
 rationalApproximations (Approximate x) = [toRational (x :: Double)]
-rationalApproximations (Exact 0 q) = [q]
-rationalApproximations (Exact z q) = fmap (\pi' -> q * (pi' ^^ z)) piConvergents
+rationalApproximations (Exact _ 0)     = [0]
+rationalApproximations (Exact 0 q)     = [q]
+rationalApproximations (Exact z q)
+  | even z    = [q * 10005^^k * c^^z     | c <- chudnovsky]
+  | otherwise = [q * 10005^^k * c^^z * r | c <- chudnovsky | r <- rootApproximation]
+  where k = z `div` 2
+
+chudnovsky :: [Rational]
+chudnovsky = [426880 / s | s <- partials]
+  where lk = iterate (+545140134) 13591409
+        xk = iterate (*(-262537412640768000)) 1
+        kk = iterate (+12) 6
+        mk = 1: [m * ((k^3 - 16*k) % (n+1)^3) | m <- mk | k <- kk | n <- [0..]]
+        values = [m * l / x | m <- mk | l <- lk | x <- xk]
+        partials = scanl1 (+) values
+
+ -- | Given an infinite converging sequence of rationals, find their limit.
+ -- Takes a comparison function to determine when convergence is close enough.
+getRationalLimit :: Fractional a => (a -> a -> Bool) -> [Rational] -> a
+getRationalLimit cmp = go . map fromRational
+  where go (x:y:xs)
+          | cmp x y   = y
+          | otherwise = go (y:xs)
+        go [x] = x
+        go _ = error "did not converge"
+
+-- | A sequence of rationals approximating sqrt 10005. Carefully chosen so that 
+-- the denominator does not increase too rapidly but approximations are still 
+-- appropriately precise.
+rootApproximation :: [Rational]
+rootApproximation = map head . iterate (drop 4) $ go 1 0 100 1 40
   where
-    piConvergents :: [Rational]
-    piConvergents = go True 2 4 where
-      go s p' q' | ltPi m = [q' | not s] ++ go True m q'
-                 | otherwise = [p' | s] ++ go False p' m where
-        m = (numerator p' + numerator q')%(denominator p' + denominator q')
-    ltPi :: Rational -> Bool
-    ltPi x = ok x 1 where
-      ok y i =
-        y <= (27*i - 12)%5 ||
-        (y < (675*i - 216)%125 &&
-         ok ((y - fromInteger (5*i - 2))*(3*(3*i + 1)*(3*i + 2)%(i*(2*i - 1))))
-            (i + 1))
+    go pk' qk' pk qk a = (pk % qk): go pk qk (pk' + a*pk) (qk' + a*qk) (240-a)
 
 instance Show ExactPi where
   show (Exact z q) | z == 0 = "Exactly " ++ show q
