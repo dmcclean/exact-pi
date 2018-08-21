@@ -17,26 +17,24 @@ of the arithmetic operations in the `Num` typeclass and to encode conversion
 factors defined experimentally.
 -}
 module Data.ExactPi
--- (
---   ExactPi(..),
---   approximateValue,
---   isZero,
---   isExact,
---   isExactZero,
---   isExactOne,
---   areExactlyEqual,
---   isExactInteger,
---   toExactInteger,
---   isExactRational,
---   toExactRational,
---   rationalApproximations,
---   rationalApproximations2
--- )
+(
+  ExactPi(..),
+  approximateValue,
+  isZero,
+  isExact,
+  isExactZero,
+  isExactOne,
+  areExactlyEqual,
+  isExactInteger,
+  toExactInteger,
+  isExactRational,
+  toExactRational,
+  rationalApproximations,
+  getRationalLimit
+)
 where
 
-import Data.Monoid
 import Data.Ratio ((%), numerator, denominator)
-import Data.Semigroup
 
 -- | Represents an exact or approximate real value.
 -- The exactly representable values are rational multiples of an integer power of pi.
