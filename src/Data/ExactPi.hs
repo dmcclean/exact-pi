@@ -122,8 +122,8 @@ chudnovsky = [426880 / s | s <- partials]
         values = [m * l / x | m <- mk | l <- lk | x <- xk]
         partials = scanl1 (+) values
 
- -- | Given an infinite converging sequence of rationals, find their limit.
- -- Takes a comparison function to determine when convergence is close enough.
+-- | Given an infinite converging sequence of rationals, find their limit.
+-- Takes a comparison function to determine when convergence is close enough.
 getRationalLimit :: Fractional a => (a -> a -> Bool) -> [Rational] -> a
 getRationalLimit cmp = go . map fromRational
   where go (x:y:xs)
