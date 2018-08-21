@@ -34,7 +34,10 @@ module Data.ExactPi
 )
 where
 
+import Data.Monoid
 import Data.Ratio ((%), numerator, denominator)
+import Data.Semigroup
+import Prelude
 
 -- | Represents an exact or approximate real value.
 -- The exactly representable values are rational multiples of an integer power of pi.
