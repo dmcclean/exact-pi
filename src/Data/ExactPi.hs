@@ -1,8 +1,5 @@
 {-# LANGUAGE RankNTypes          #-}
 {-# LANGUAGE ParallelListComp    #-}
-{-# LANGUAGE KindSignatures      #-}
-{-# LANGUAGE DataKinds           #-}
-{-# LANGUAGE ScopedTypeVariables #-}
 
 {-# OPTIONS_HADDOCK show-extensions #-}
 
@@ -40,13 +37,6 @@ where
 import Data.Monoid
 import Data.Ratio ((%), numerator, denominator)
 import Data.Semigroup
-import Prelude
-import Data.Fixed
-import GHC.TypeNats
-
-data E (n :: Nat)
-instance KnownNat n => HasResolution (E n) where
-  resolution _ = 10^(natVal (undefined :: E n))
 
 -- | Represents an exact or approximate real value.
 -- The exactly representable values are rational multiples of an integer power of pi.
