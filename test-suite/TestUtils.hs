@@ -10,9 +10,10 @@ module TestUtils
 
 import Data.Fixed
 import Data.Proxy
-import GHC.TypeNats
 import Data.List
 import Data.Fixed (mod')
+
+import GHC.TypeLits
 
 import Data.ExactPi
 
@@ -29,7 +30,8 @@ getValue = getRationalLimit (==) . rationalApproximations
 
 getDigit :: Integer -> Int
 getDigit n = case someNatVal d of
-               SomeNat (_ :: Proxy m) -> (floor $ 16^n * (getValue (Exact 1 1) :: Fixed (E m))) `mod` 16
+               Just (SomeNat (_ :: Proxy m)) -> (floor $ 16^n * (getValue (Exact 1 1) :: Fixed (E m))) `mod` 16
+               Nothing -> error "negative digit requested"
              where d = fromInteger $ 4 * n `div` 3 + 1
 --------------------------------------------------------------------------------
 powModInteger :: Integer -> Integer -> Integer -> Integer
