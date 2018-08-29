@@ -39,7 +39,7 @@ library
 
 test-suite spec
   main-is:             Test.hs
-  build-depends:       base >=4.7 && <5,
+  build-depends:       base >=4.7 && <4.12,
                        exact-pi,
                        numtype-dk >= 0.5,
                        QuickCheck >=2.10 && <2.12,
