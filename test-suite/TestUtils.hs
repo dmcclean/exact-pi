@@ -8,12 +8,11 @@ module TestUtils
   , E
   ) where
 
-import Data.Fixed
-import Data.Proxy
-import Data.List
-import Data.Fixed (mod')
+import Data.Proxy   (Proxy)
+import Data.List    (foldl')
+import Data.Fixed   (mod', HasResolution(..), Fixed)
 
-import GHC.TypeLits
+import GHC.TypeLits (Nat, KnownNat, SomeNat(..), natVal, someNatVal)
 
 import Data.ExactPi
 

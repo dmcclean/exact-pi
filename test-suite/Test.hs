@@ -1,14 +1,14 @@
 {-# LANGUAGE DataKinds #-}
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
-import Data.Fixed
-import Data.Ratio
-import Test.Tasty
-import Test.Tasty.HUnit
+import Data.Fixed            (Fixed(..))
+import Data.Ratio            ((%))
+import Test.Tasty            (TestTree, testGroup, defaultMain)
+import Test.Tasty.HUnit      ((@?=), Assertion, testCase)
 import Test.Tasty.QuickCheck (testProperty)
-import Test.QuickCheck (Positive(..))
+import Test.QuickCheck       (Positive(..))
 
 import Data.ExactPi
-import TestUtils
+import TestUtils             (E, getValue, getDigit, getDigitBBP)
 
 -- test pi^2 first since it does not rely on square roots
 piSquaredDouble :: Assertion
