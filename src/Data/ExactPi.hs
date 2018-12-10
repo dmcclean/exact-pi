@@ -30,6 +30,7 @@ module Data.ExactPi
   isExactRational,
   toExactRational,
   rationalApproximations,
+  -- * Utils
   getRationalLimit
 )
 where
@@ -101,9 +102,7 @@ toExactRational _           = Nothing
 -- that 'Approximate' values are converted using the 'Real' instance for 'Double' into a
 -- singleton list. Note that exact rationals are also converted into a singleton list.
 --
--- Implementation based on Chudnovsky's algorithm, with the continued fraction algorithm 
--- used to approximate root 10005. Note Chudnovsky's series provides no more than 15 digits
--- per iteration, so the root approximation should not have a more rapid rate of convergence.
+-- Implementation is based on Chudnovsky's algorithm.
 rationalApproximations :: ExactPi -> [Rational]
 rationalApproximations (Approximate x) = [toRational (x :: Double)]
 rationalApproximations (Exact _ 0)     = [0]
@@ -118,12 +117,15 @@ chudnovsky = [426880 / s | s <- partials]
   where lk = iterate (+545140134) 13591409
         xk = iterate (*(-262537412640768000)) 1
         kk = iterate (+12) 6
-        mk = 1: [m * ((k^3 - 16*k) % (n+1)^3) | m <- mk | k <- kk | n <- [0..]]
+        mk = 1: [m * ((k^(3::Int) - 16*k) % (n+1)^(3::Int)) | m <- mk | k <- kk | n <- [0..]]
         values = [m * l / x | m <- mk | l <- lk | x <- xk]
         partials = scanl1 (+) values
 
 -- | Given an infinite converging sequence of rationals, find their limit.
 -- Takes a comparison function to determine when convergence is close enough.
+--
+-- >>> getRationalLimit (==) (rationalApproximations (Exact 1 1)) :: Double
+-- 3.141592653589793
 getRationalLimit :: Fractional a => (a -> a -> Bool) -> [Rational] -> a
 getRationalLimit cmp = go . map fromRational
   where go (x:y:xs)
@@ -132,9 +134,14 @@ getRationalLimit cmp = go . map fromRational
         go [x] = x
         go _ = error "did not converge"
 
--- | A sequence of rationals approximating sqrt 10005. Carefully chosen so that 
--- the denominator does not increase too rapidly but approximations are still 
+-- | A sequence of convergents approximating @sqrt 10005@, intended to be zipped
+-- with 'chudnovsky' in 'rationalApproximations'. Carefully chosen so that
+-- the denominator does not increase too rapidly but approximations are still
 -- appropriately precise.
+--
+-- Chudnovsky's series provides no more than 15 digits
+-- per iteration, so the root approximation should not
+-- have a more rapid rate of convergence.
 rootApproximation :: [Rational]
 rootApproximation = map head . iterate (drop 4) $ go 1 0 100 1 40
   where
