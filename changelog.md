@@ -1,3 +1,7 @@
+0.5.0.0
+-------
+* Change implementation of 'rationalApproximations' to use Chudnovsky's approximations.
+
 0.4.1.4
 -------
 * Comply with NoStarIsType pragma.
