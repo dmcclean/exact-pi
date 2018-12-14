@@ -1,3 +1,8 @@
+0.5.0.1
+-------
+* Bump base dependency.
+* Resolve compiler warnings.
+
 0.5.0.0
 -------
 * Change implementation of 'rationalApproximations' to use Chudnovsky's approximations.
