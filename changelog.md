@@ -1,3 +1,7 @@
+0.5.0.2
+-------
+* Support GHC 9.4.
+
 0.5.0.1
 -------
 * Bump base dependency.
