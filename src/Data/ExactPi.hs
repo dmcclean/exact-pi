@@ -197,9 +197,8 @@ approx1 f x = Approximate (f (approximateValue x))
 
 -- | The multiplicative semigroup over 'Rational's augmented with multiples of 'pi'.
 instance Semigroup ExactPi where
-  (<>) = mappend
+  (<>) = (*)
 
 -- | The multiplicative monoid over 'Rational's augmented with multiples of 'pi'.
 instance Monoid ExactPi where
   mempty = 1
-  mappend = (*)
