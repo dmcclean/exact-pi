@@ -1,5 +1,6 @@
 {-# LANGUAGE RankNTypes          #-}
 {-# LANGUAGE ParallelListComp    #-}
+{-# LANGUAGE PostfixOperators    #-}
 
 {-# OPTIONS_HADDOCK show-extensions #-}
 
@@ -35,6 +36,8 @@ module Data.ExactPi
 )
 where
 
+import Data.List.Infinite (Infinite(..), (...))
+import qualified Data.List.Infinite as Inf
 import Data.Monoid
 import Data.Ratio ((%), numerator, denominator)
 import Data.Semigroup
@@ -49,7 +52,7 @@ data ExactPi = Exact Integer Rational -- ^ @'Exact' z q@ = q * pi^z. Note that t
 -- This uses the value of `pi` supplied by the destination type, to provide the appropriate
 -- precision.
 approximateValue :: Floating a => ExactPi -> a
-approximateValue (Exact z q) = (pi ^^ z) * (fromRational q)
+approximateValue (Exact z q) = (pi ^^ z) * fromRational q
 approximateValue (Approximate x) = x
 
 -- | Identifies whether an 'ExactPi' is an exact or approximate representation of zero.
@@ -108,18 +111,19 @@ rationalApproximations (Approximate x) = [toRational (x :: Double)]
 rationalApproximations (Exact _ 0)     = [0]
 rationalApproximations (Exact 0 q)     = [q]
 rationalApproximations (Exact z q)
-  | even z    = [q * 10005^^k * c^^z     | c <- chudnovsky]
-  | otherwise = [q * 10005^^k * c^^z * r | c <- chudnovsky | r <- rootApproximation]
+  | even z    = Inf.toList $ fmap (\c -> q * 10005^^k * c^^z) chudnovsky
+  | otherwise = Inf.toList $ Inf.zipWith (\c r -> q * 10005^^k * c^^z * r)  chudnovsky rootApproximation
   where k = z `div` 2
 
-chudnovsky :: [Rational]
-chudnovsky = [426880 / s | s <- partials]
-  where lk = iterate (+545140134) 13591409
-        xk = iterate (*(-262537412640768000)) 1
-        kk = iterate (+12) 6
-        mk = 1: [m * ((k^(3::Int) - 16*k) % (n+1)^(3::Int)) | m <- mk | k <- kk | n <- [0..]]
-        values = [m * l / x | m <- mk | l <- lk | x <- xk]
-        partials = scanl1 (+) values
+chudnovsky :: Infinite Rational
+chudnovsky = fmap (426880 /) partials
+  where
+    lk = Inf.iterate (+545140134) 13591409
+    xk = Inf.iterate (*(-262537412640768000)) 1
+    kk = Inf.iterate (+12) 6
+    mk = 1 :< Inf.zipWith3 (\m k n -> m * ((k^(3::Int) - 16*k) % (n+1)^(3::Int))) mk kk (0...)
+    values = Inf.zipWith3 (\m l x -> m * l / x) mk lk xk
+    partials = Inf.scanl1 (+) values
 
 -- | Given an infinite converging sequence of rationals, find their limit.
 -- Takes a comparison function to determine when convergence is close enough.
@@ -142,10 +146,11 @@ getRationalLimit cmp = go . map fromRational
 -- Chudnovsky's series provides no more than 15 digits
 -- per iteration, so the root approximation should not
 -- have a more rapid rate of convergence.
-rootApproximation :: [Rational]
-rootApproximation = map head . iterate (drop 4) $ go 1 0 100 1 40
+rootApproximation :: Infinite Rational
+rootApproximation = fmap Inf.head . Inf.iterate (Inf.drop 4) $ go 1 0 100 1 40
   where
-    go pk' qk' pk qk a = (pk % qk): go pk qk (pk' + a*pk) (qk' + a*qk) (240-a)
+    go :: Integer -> Integer -> Integer -> Integer -> Integer -> Infinite Rational
+    go pk' qk' pk qk a = (pk % qk) :< go pk qk (pk' + a*pk) (qk' + a*qk) (240-a)
 
 instance Show ExactPi where
   show (Exact z q) | z == 0 = "Exactly " ++ show q

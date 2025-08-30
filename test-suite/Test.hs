@@ -29,9 +29,9 @@ piSquaredWAend = x `mod` (10^21) @?= 643271910414561208753
   where
     MkFixed x = getValue (Exact 2 1) :: Fixed (E 3647)
 
--- test first term matches formula of chudnovsky's algorithm
+-- test first term matches formula of Chudnovsky's algorithm
 firstApproximation :: Assertion
-firstApproximation = head (rationalApproximations (Exact 2 1)) @?= (426880 % 13591409)^2 * 10005
+firstApproximation = take 1 (rationalApproximations (Exact 2 1)) @?= [(426880 % 13591409)^2 * 10005]
 
 -- pi tests
 piDouble :: Assertion

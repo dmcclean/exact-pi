@@ -8,10 +8,10 @@ module TestUtils
   , E
   ) where
 
-import Data.Proxy   (Proxy)
-import Data.List    (foldl')
+import Prelude hiding (Foldable(..))
 import Data.Fixed   (mod', HasResolution(..), Fixed)
-
+import Data.Foldable
+import Data.Proxy   (Proxy)
 import GHC.TypeLits (Nat, KnownNat, SomeNat(..), natVal, someNatVal)
 
 import Data.ExactPi
