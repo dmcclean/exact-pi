@@ -49,7 +49,6 @@ test-suite spec
     build-depends:
         base >=4.11 && <5,
         exact-pi,
-        numtype-dk >=0.5,
         QuickCheck >=2.10,
         tasty >=0.10,
         tasty-hunit >=0.9 && <0.11,
