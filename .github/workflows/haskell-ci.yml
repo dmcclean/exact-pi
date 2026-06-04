@@ -8,14 +8,16 @@
 #
 # For more information, see https://github.com/haskell-CI/haskell-ci
 #
-# version: 0.19.20250801
+# version: 0.19.20260331
 #
-# REGENDATA ("0.19.20250801",["github","exact-pi.cabal"])
+# REGENDATA ("0.19.20260331",["github","exact-pi.cabal"])
 #
 name: Haskell-CI
 on:
   - push
   - pull_request
+  - merge_group
+  - workflow_dispatch
 jobs:
   linux:
     name: Haskell-CI - Linux - ${{ matrix.compiler }}
@@ -28,14 +30,19 @@ jobs:
     strategy:
       matrix:
         include:
+          - compiler: ghc-9.14.1
+            compilerKind: ghc
+            compilerVersion: 9.14.1
+            setup-method: ghcup
+            allow-failure: false
           - compiler: ghc-9.12.2
             compilerKind: ghc
             compilerVersion: 9.12.2
             setup-method: ghcup
             allow-failure: false
-          - compiler: ghc-9.10.2
+          - compiler: ghc-9.10.3
             compilerKind: ghc
-            compilerVersion: 9.10.2
+            compilerVersion: 9.10.3
             setup-method: ghcup
             allow-failure: false
           - compiler: ghc-9.8.4
@@ -173,7 +180,7 @@ jobs:
           chmod a+x $HOME/.cabal/bin/cabal-plan
           cabal-plan --version
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           path: source
       - name: initial cabal.project for sdist
